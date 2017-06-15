@@ -44,15 +44,20 @@ char * spc_scanf(char *dest, int *used, int *length){
 			}
 		}
 		
+		// fill temporary buffer
+		// fgets adds an extra '\0' at the end, pad by one extra char
 		char src[STRETCH_SIZE + 1];
 		fgets(src, sizeof(src), stdin);
 		
+		// copy from temporary buffer to command buffer,
+		// as long as it's not an endline
 		for(int i = 0; i < STRETCH_SIZE; i++){
 			*(dest + *used + i) = src[i];
 			if(src[i] == '\n')
 				return dest;
 		}
 		
+		// updated used size if endline wasn't found
 		*used += STRETCH_SIZE;
 	}
 	
@@ -96,7 +101,7 @@ int main(void){
 		memset(cmd_buffer, 0x00, cmd_buffer_length);
 		
 		// fake exit
-		//~ exit = true;
+		exit = true;
 		
 	}
 	
