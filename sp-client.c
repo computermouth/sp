@@ -121,7 +121,7 @@ int spc_parse_cmd (char * cmd_buffer) {
 	// split any arguments by spaces
 	tokenized = strtok(cmd_buffer, " ");
 	
-	while (tokenized != NULL){
+	if (tokenized != NULL){
 		
 		if ( strncmp(tokenized, "pingSites", sizeof("pingSites")) == 0 ) {
 			printf("[spc_pingsites]\n");

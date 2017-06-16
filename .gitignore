@@ -1,2 +1,4 @@
 sp-client.o
 sp-client
+sp-server.o
+sp-server
