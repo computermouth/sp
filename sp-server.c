@@ -1,12 +1,9 @@
 
-/*
- * gcc server.c -o server -lnanomsg
-*/
-
-#include <assert.h>
-#include <string.h>
-//~ #include <time.h>
 #include <stdio.h>
+#include <string.h>
+#include <assert.h>
+
+// external dependencies
 #include <nanomsg/nn.h>
 #include <nanomsg/reqrep.h>
 

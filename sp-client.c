@@ -4,8 +4,43 @@
 #include <stdbool.h>
 #include <string.h>
 #include <errno.h>
+#include <assert.h>
+
+// external dependencies
+#include <nanomsg/nn.h>
+#include <nanomsg/reqrep.h>
 
 const unsigned short STRETCH_SIZE = 10;
+
+const char two_plus_two[] = "2+2";
+const char thr_plus_thr[] = "3+3";
+
+int nn_msg ( void )
+{
+  int sz_two_plus_two = strlen(two_plus_two) + 1; // '\0' too
+  int sz_thr_plus_thr = strlen(thr_plus_thr) + 1; // '\0' too
+  char *buf = NULL;
+  int bytes = -1;
+  int sock = nn_socket (AF_SP, NN_REQ);
+  assert (sock >= 0);
+  assert (nn_connect (sock, "tcp://127.0.0.1:5555") >= 0);
+  
+  bytes = nn_send (sock, two_plus_two, sz_two_plus_two, 0);
+  assert (bytes == sz_two_plus_two);
+  bytes = nn_recv (sock, &buf, NN_MSG, 0);
+  assert (bytes >= 0);
+  printf("%s\n", buf);
+  nn_freemsg (buf);
+  
+  bytes = nn_send (sock, thr_plus_thr, sz_thr_plus_thr, 0);
+  assert (bytes == sz_thr_plus_thr);
+  bytes = nn_recv (sock, &buf, NN_MSG, 0);
+  assert (bytes >= 0);
+  printf("%s\n", buf);
+  nn_freemsg (buf);
+  
+  return nn_shutdown (sock, 0);
+}
 
 void spc_help(){
 	
@@ -124,6 +159,8 @@ int main(void){
 	
 	bool exit = false;
 	
+	// create an input buffer that will grow if neccessary
+	// mostly just to avoid overflows
 	char * cmd_buffer = NULL;
 	int cmd_buffer_length = STRETCH_SIZE + 1;
 	int cmd_buffer_used = 0;
@@ -149,7 +186,13 @@ int main(void){
 			return 1;
 		}
 		
-		if ( spc_parse_cmd(cmd_buffer) == 1 ){
+		// limit size to server's input buffer size
+		// parse commands if under the limit
+		if ( cmd_buffer_used > 2048){
+			printf("\nThat's too much information to request.\n");
+			printf("Limit requests to 2000 characters\n\n");
+		} else if ( spc_parse_cmd(cmd_buffer) == 1 ) {
+			// 'exit' was entered
 			exit = true;
 		}
 		
