@@ -72,29 +72,48 @@ char * spc_scanf(char *dest, int *used, int *length){
 	return dest;
 }
 
-int parse_cmd (char * cmd_buffer) {
+int spc_ping_sites (char * cmd_buffer) {
+	
+	
+	
+	return 0;
+}
+
+int spc_parse_cmd (char * cmd_buffer) {
 	
 	char * tokenized = NULL;
 	
+	// split any arguments by spaces
 	tokenized = strtok(cmd_buffer, " ");
+	
 	while (tokenized != NULL){
 		
-		if ( strncmp(tokenized, "exit", 5) == 0 ){
+		if ( strncmp(tokenized, "pingSites", sizeof("pingSites")) == 0 ) {
+			printf("[spc_pingsites]\n");
+			return 0;
+		} else if ( strncmp(tokenized, "showHandles", sizeof("showHandles")) == 0 ) {
+			printf("[spc_showhandles]\n");
+			return 0;
+		} else if ( strncmp(tokenized, "showHandleStatus", sizeof("showHandleStatus")) == 0 ) {
+			printf("[spc_showhandlestatus]\n");
+			return 0;
+		} else if ( strncmp(tokenized, "exit", sizeof("exit")) == 0 ){
 			printf("quitting..\n");
 			return 1;
 		} else if ( strncmp(tokenized, "help", 5) == 0 ) {
-			printf("\n\n");
+			printf("\n");
 			spc_help();
 			return 0;
 		} else {
-			printf("Invalid command '%s'\n\n", tokenized);
+			// help text catch-all
+			printf("\n  Invalid command '%s'\n\n", tokenized);
 			spc_help();
 			return 0;
 		}
 		
 	}
 	
-	// will this ever get reached?
+	// user hit Return at prompt
 	printf("Please enter a command:\n");
 	spc_help();
 	return 0;
@@ -121,7 +140,7 @@ int main(void){
 	
 	while(!exit){
 		
-		printf("> ");
+		printf("spsh ~> ");
 		
 		// safely get keyboard input into a stretchy buffer
 		cmd_buffer = spc_scanf(cmd_buffer, &cmd_buffer_used, &cmd_buffer_length);
@@ -130,16 +149,13 @@ int main(void){
 			return 1;
 		}
 		
-		if ( parse_cmd(cmd_buffer) == 1 ){
+		if ( spc_parse_cmd(cmd_buffer) == 1 ){
 			exit = true;
 		}
 		
 		// clear cmd_buffer for next use
 		cmd_buffer_used = 0;
 		memset(cmd_buffer, 0x00, cmd_buffer_length);
-		
-		// fake exit
-		//~ exit = true;
 		
 	}
 	
