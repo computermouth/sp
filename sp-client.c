@@ -9,8 +9,6 @@ const unsigned short STRETCH_SIZE = 10;
 
 void spc_help(){
 	
-	printf("silverclient prompt\n");
-	printf("\n");
 	printf("  commands:\n");
 	printf("    pingSites [domain_x] [domain_y] [domain_z]\n");
 	printf("      - create a request to test the ping of one or more domains\n");
@@ -24,6 +22,7 @@ void spc_help(){
 	printf("      - exits the prompt\n");
 	printf("    help\n");
 	printf("      - shows this help text\n");
+	printf("\n");
 	
 }
 
@@ -53,8 +52,14 @@ char * spc_scanf(char *dest, int *used, int *length){
 		// as long as it's not an endline
 		for(int i = 0; i < STRETCH_SIZE; i++){
 			*(dest + *used + i) = src[i];
-			if(src[i] == '\n')
+			if(src[i] == '\n'){
+				// end of entry
+				// manually cap with space and terminator
+				// space is used for argument chunking later
+				*(dest + *used + i) = '\0';
+				*used += i + 1;
 				return dest;
+			}
 		}
 		
 		// updated used size if endline wasn't found
@@ -65,6 +70,35 @@ char * spc_scanf(char *dest, int *used, int *length){
 	free(dest);
 	dest = NULL;
 	return dest;
+}
+
+int parse_cmd (char * cmd_buffer) {
+	
+	char * tokenized = NULL;
+	
+	tokenized = strtok(cmd_buffer, " ");
+	while (tokenized != NULL){
+		
+		if ( strncmp(tokenized, "exit", 5) == 0 ){
+			printf("quitting..\n");
+			return 1;
+		} else if ( strncmp(tokenized, "help", 5) == 0 ) {
+			printf("\n\n");
+			spc_help();
+			return 0;
+		} else {
+			printf("Invalid command '%s'\n\n", tokenized);
+			spc_help();
+			return 0;
+		}
+		
+	}
+	
+	// will this ever get reached?
+	printf("Please enter a command:\n");
+	spc_help();
+	return 0;
+	
 }
 
 int main(void){
@@ -81,6 +115,8 @@ int main(void){
 		return 1;
 	}
 	
+	printf("\nsilverclient prompt\n");
+	printf("\n");
 	spc_help();
 	
 	while(!exit){
@@ -94,14 +130,16 @@ int main(void){
 			return 1;
 		}
 		
-		printf("%s\n", cmd_buffer);
+		if ( parse_cmd(cmd_buffer) == 1 ){
+			exit = true;
+		}
 		
 		// clear cmd_buffer for next use
 		cmd_buffer_used = 0;
 		memset(cmd_buffer, 0x00, cmd_buffer_length);
 		
 		// fake exit
-		exit = true;
+		//~ exit = true;
 		
 	}
 	
